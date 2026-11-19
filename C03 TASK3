@@ -1,0 +1,88 @@
+
+import random
+import string
+import time
+from collections import Counter
+
+calls = [
+    "seeds not received seeds delayed",
+    "fertiliser price high",
+    "seeds price high subsidy not received",
+    "crop damaged due to heavy rain",
+    "fertiliser subsidy not received",
+    "seeds quality is poor"
+]
+
+STOP = {"not", "high", "is", "due", "to"}
+
+# TODO 1: Word frequency using dictionary
+def frequencies(texts, stop):
+    counts = {}
+
+    for text in texts:
+        words = text.lower().split()
+
+        for word in words:
+            word = word.strip(string.punctuation)
+
+            if word and word not in stop:
+                counts[word] = counts.get(word, 0) + 1
+
+    return counts
+
+# TODO 2: Top k frequent words
+def top(counts, k):
+    return sorted(
+        counts.items(),
+        key=lambda item: (-item[1], item[0])
+    )[:k]
+
+print("Word frequencies:", frequencies(calls, STOP))
+print("Top words:", top(frequencies(calls, STOP), 5))
+
+# Group complaints by district
+complaints = [
+    ("Chennai", "Seeds not received"),
+    ("Madurai", "Fertiliser price high"),
+    ("Chennai", "Water shortage"),
+    ("Salem", "Crop damaged"),
+    ("Madurai", "Subsidy delayed")
+]
+
+districts = {}
+
+for district, complaint in complaints:
+    districts.setdefault(district, []).append(complaint)
+
+print("\nComplaints by district:")
+for district, items in districts.items():
+    print(district, ":", items)
+
+# Performance testing
+for n in [1000, 10000, 100000]:
+    data = [
+        random.choice(calls)
+        for _ in range(n)
+    ]
+
+    start = time.perf_counter()
+    result = frequencies(data, STOP)
+    dictionary_time = time.perf_counter() - start
+
+    words = " ".join(data).lower().split()
+
+    start = time.perf_counter()
+    distinct = set(words)
+    counts = {word: words.count(word) for word in distinct}
+    list_time = time.perf_counter() - start
+
+    start = time.perf_counter()
+    counter_result = Counter(
+        word for word in words if word not in STOP
+    )
+    counter_time = time.perf_counter() - start
+
+    print("\nComplaints:", n)
+    print("Dictionary time:", dictionary_time)
+    print("List count time:", list_time)
+    print("Counter time:", counter_time)
