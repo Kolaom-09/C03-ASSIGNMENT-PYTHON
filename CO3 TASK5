@@ -1,0 +1,118 @@
+
+import random
+import time
+import sys
+
+# INPUT: Temperature readings
+readings = [
+    4, 6, 9, 55, -60,
+    2, 7, 10, 5, 3,
+    60, -55, 8, 1, 6
+]
+
+# Method 1: For loop with append
+valid_loop = []
+
+for c in readings:
+    if -50 <= c <= 50:
+        valid_loop.append(c)
+
+fahrenheit_loop = []
+
+for c in valid_loop:
+    fahrenheit_loop.append((c * 9/5) + 32)
+
+# Method 2: List comprehension
+valid_comp = [
+    c for c in readings
+    if -50 <= c <= 50
+]
+
+fahrenheit_comp = [
+    (c * 9/5) + 32
+    for c in valid_comp
+]
+
+# Method 3: map() and filter()
+valid_map = list(
+    filter(lambda c: -50 <= c <= 50, readings)
+)
+
+fahrenheit_map = list(
+    map(lambda c: c * 9/5 + 32, valid_map)
+)
+
+# Alarm minutes: temperatures outside 2 to 8 degrees
+alarm_minutes = [
+    minute for minute, temperature
+    in enumerate(readings, start=1)
+    if temperature < 2 or temperature > 8
+]
+
+print("Original readings:", readings)
+print("Valid Celsius:", valid_loop)
+print("Valid Fahrenheit:", fahrenheit_loop)
+print("Comprehension result:", valid_comp)
+print("Map and filter result:", valid_map)
+print("Alarm minutes:", alarm_minutes)
+
+# Verify identical results
+print("\nAll methods equal:",
+      valid_loop == valid_comp == valid_map)
+
+# Dictionary comprehension
+temperature_dict = {
+    minute: temp
+    for minute, temp in enumerate(readings, start=1)
+    if -50 <= temp <= 50
+}
+
+print("Temperature dictionary:", temperature_dict)
+
+# Set comprehension
+unique_temperatures = {
+    temp for temp in valid_comp
+}
+
+print("Unique valid temperatures:", unique_temperatures)
+
+# Performance test
+for n in [10000, 100000, 1000000]:
+    data = [random.randint(-60, 60) for _ in range(n)]
+
+    start = time.perf_counter()
+    result1 = [
+        x for x in data if -50 <= x <= 50
+    ]
+    t1 = time.perf_counter() - start
+
+    start = time.perf_counter()
+    result2 = []
+
+    for x in data:
+        if -50 <= x <= 50:
+            result2.append(x)
+
+    t2 = time.perf_counter() - start
+
+    start = time.perf_counter()
+    result3 = list(
+        filter(lambda x: -50 <= x <= 50, data)
+    )
+    t3 = time.perf_counter() - start
+
+    print("\nReadings:", n)
+    print("List comprehension:", t1)
+    print("For loop:", t2)
+    print("Filter:", t3)
+
+# Memory comparison
+numbers = [x for x in range(1000)]
+generator = (x for x in range(1000))
+
+print("\nList memory:", sys.getsizeof(numbers))
+print("Generator memory:", sys.getsizeof(generator))
+
+# Edge cases
+print("All valid:", [x for x in [3, 4, 5] if -50 <= x <= 50])
+print("All invalid:", [x for x in [60, 70, -80] if -50 <= x <= 50])
