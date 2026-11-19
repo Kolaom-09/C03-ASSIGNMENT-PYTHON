@@ -1,0 +1,141 @@
+
+import time
+import random
+import re
+
+# INPUT: Contacts from multiple devices
+contacts = [
+    {
+        "name": "Dr. Ravi",
+        "phone": "+91 98400 12345",
+        "email": "ravi@gmail.com"
+    },
+    {
+        "name": "Ravi Kumar",
+        "phone": "9840012345",
+        "email": "ravi.kumar@gmail.com"
+    },
+    {
+        "name": "Priya",
+        "phone": "+91-98765-43210",
+        "email": "priya@gmail.com"
+    },
+    {
+        "name": "Arun",
+        "phone": "9876543211",
+        "email": ""
+    },
+    {
+        "name": "Ravi",
+        "phone": "9840012345",
+        "email": "ravi@yahoo.com"
+    },
+    {
+        "name": "Priya S",
+        "phone": "9876543210",
+        "email": "priya@gmail.com"
+    }
+]
+
+# Normalize phone number
+def normalize_phone(phone):
+    if not phone:
+        return ""
+
+    digits = re.sub(r"\D", "", phone)
+
+    if len(digits) == 12 and digits.startswith("91"):
+        digits = digits[2:]
+
+    return digits
+
+# Normalize name
+def normalize_name(name):
+    return re.sub(
+        r"[^a-z]",
+        "",
+        name.lower()
+    )
+
+# Merge contacts
+def merge_contacts(data):
+    merged = {}
+
+    for contact in data:
+        phone = normalize_phone(contact.get("phone", ""))
+        name = contact.get("name", "").strip()
+        email = contact.get("email", "").strip().lower()
+
+        if not phone:
+            continue
+
+        if phone not in merged:
+            merged[phone] = {
+                "names": set(),
+                "phones": set(),
+                "emails": set()
+            }
+
+        if name:
+            merged[phone]["names"].add(name)
+
+        merged[phone]["phones"].add(phone)
+
+        if email:
+            merged[phone]["emails"].add(email)
+
+    return merged
+
+# Execute merging
+result = merge_contacts(contacts)
+
+print("MERGED CONTACTS")
+print("----------------")
+
+for phone, details in result.items():
+    print("\nPhone:", phone)
+    print("Names:", sorted(details["names"]))
+    print("All numbers:", sorted(details["phones"]))
+    print("Emails:", sorted(details["emails"]))
+
+# Small manual verification
+small_contacts = [
+    {"name": "Ravi", "phone": "9840012345",
+     "email": "ravi@gmail.com"},
+
+    {"name": "Ravi Kumar", "phone": "+91 98400 12345",
+     "email": "ravi@yahoo.com"}
+]
+
+small_result = merge_contacts(small_contacts)
+
+print("\nSmall test:")
+print(small_result)
+
+# Performance testing
+for n in [1000, 100000]:
+    test_data = []
+
+    for i in range(n):
+        test_data.append({
+            "name": "Person" + str(i),
+            "phone": str(9000000000 + i),
+            "email": "person" + str(i) + "@gmail.com"
+        })
+
+    start = time.perf_counter()
+    merged = merge_contacts(test_data)
+    elapsed = time.perf_counter() - start
+
+    print("\nContacts:", n)
+    print("Dictionary merging time:", elapsed)
+    print("Unique contacts:", len(merged))
+
+# Missing field test
+missing_contacts = [
+    {"name": "Kumar", "phone": "", "email": ""},
+    {"name": "Anu", "phone": "9876543212", "email": ""}
+]
+
+print("\nMissing field test:")
+print(merge_contacts(missing_contacts))
