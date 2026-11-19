@@ -1,0 +1,89 @@
+
+import copy
+import sys
+import time
+
+rows, cols = 3, 4
+
+# Original incorrect grid
+bad = [[0] * cols] * rows
+bad[0][1] = 7
+
+# TODO 1: Correct grid
+good = [[0 for j in range(cols)] for i in range(rows)]
+good[0][1] = 7
+
+print("bad :", bad)
+print("good:", good)
+
+print(bad[0] is bad[1], good[0] is good[1])
+
+# Tuples as dictionary keys
+stops = {
+    (13.0827, 80.2707): "Chennai Central",
+    (13.0418, 80.2341): "T. Nagar"
+}
+
+print(stops[(13.0418, 80.2341)])
+
+# List and tuple copying
+original = [10, 20, [30, 40]]
+
+alias = original
+shallow = copy.copy(original)
+slice_copy = original[:]
+deep = copy.deepcopy(original)
+
+original[2][0] = 99
+
+print("\nOriginal:", original)
+print("Alias:", alias)
+print("Shallow copy:", shallow)
+print("Slice copy:", slice_copy)
+print("Deep copy:", deep)
+
+# Demonstrate is and id
+print("\nOriginal ID:", id(original))
+print("Alias ID:", id(alias))
+print("Shallow ID:", id(shallow))
+
+# Tuple unpacking
+coordinates = [(10, 20), (30, 40), (50, 60)]
+
+for latitude, longitude in coordinates:
+    print("Latitude:", latitude, "Longitude:", longitude)
+
+# Tuple containing a mutable list
+data = (10, 20, [30, 40])
+data[2].append(50)
+print("Modified tuple:", data)
+
+# Memory comparison
+values = list(range(1000000))
+tuple_values = tuple(values)
+
+print("\nList memory:", sys.getsizeof(values))
+print("Tuple memory:", sys.getsizeof(tuple_values))
+
+# Creation and indexing time
+start = time.perf_counter()
+a = tuple(range(100000))
+print("Tuple creation time:", time.perf_counter() - start)
+
+start = time.perf_counter()
+b = list(range(100000))
+print("List creation time:", time.perf_counter() - start)
+
+start = time.perf_counter()
+x = a[50000]
+print("Tuple indexing time:", time.perf_counter() - start)
+
+start = time.perf_counter()
+y = b[50000]
+print("List indexing time:", time.perf_counter() - start)
+
+# Invalid list key demonstration
+try:
+    stops[[13.0418, 80.2341]] = "T. Nagar"
+except TypeError as e:
+    print("Error:", e)
