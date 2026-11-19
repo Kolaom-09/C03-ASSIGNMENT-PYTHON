@@ -1,0 +1,81 @@
+
+import random
+import time
+
+# INPUT: Generate 365 rainfall readings
+random.seed(10)
+readings = [random.randint(0, 50) for _ in range(365)]
+
+# Weekly totals using slicing
+weekly_totals = [
+    sum(readings[i:i+7])
+    for i in range(0, len(readings), 7)
+]
+
+print("First 10 rainfall readings:", readings[:10])
+print("First 5 weekly totals:", weekly_totals[:5])
+
+# Maximum and minimum rainfall
+print("Maximum rainfall:", max(readings))
+print("Maximum position:", readings.index(max(readings)) + 1)
+
+print("Minimum rainfall:", min(readings))
+print("Minimum position:", readings.index(min(readings)) + 1)
+
+# 7-day moving average - Naive method
+def naive_average(data):
+    return [
+        sum(data[i:i+7]) / 7
+        for i in range(len(data) - 6)
+    ]
+
+# Running sum method
+def running_average(data):
+    if len(data) < 7:
+        return []
+
+    result = []
+    current_sum = sum(data[:7])
+    result.append(current_sum / 7)
+
+    for i in range(7, len(data)):
+        current_sum += data[i] - data[i-7]
+        result.append(current_sum / 7)
+
+    return result
+
+# Dry days
+dry_days = [
+    i + 1 for i, value in enumerate(readings)
+    if value == 0
+]
+
+print("Number of dry days:", len(dry_days))
+print("Dry days:", dry_days[:20])
+
+# Moving average results
+print("Naive moving average:", naive_average(readings)[:5])
+print("Running moving average:", running_average(readings)[:5])
+
+# Performance testing
+for n in [365, 36500, 365000]:
+    data = [random.randint(0, 50) for _ in range(n)]
+
+    start = time.perf_counter()
+    naive_average(data)
+    naive_time = time.perf_counter() - start
+
+    start = time.perf_counter()
+    running_average(data)
+    running_time = time.perf_counter() - start
+
+    print("\nReadings:", n)
+    print("Naive time:", naive_time)
+    print("Running sum time:", running_time)
+
+# Edge cases
+print("Empty list:", running_average([]))
+print("Short list:", running_average([2, 3, 4]))
+print("Slice readings[7:14]:", readings[7:14])
+print("Last 7 readings:", readings[-7:])
+print("Every 7th reading:", readings[::7])
