@@ -1,0 +1,168 @@
+
+import time
+import random
+import sys
+
+# INPUT: Railway timetable
+timetable = {
+    "12601": {
+        "name": "Chennai Express",
+        "stops": [
+            ("Chennai", "06:00", "06:10"),
+            ("Katpadi", "08:00", "08:05"),
+            ("Bengaluru", "11:00", "11:10")
+        ],
+        "days": {"Monday", "Wednesday", "Friday"}
+    },
+
+    "12602": {
+        "name": "Kaveri Express",
+        "stops": [
+            ("Chennai", "07:00", "07:10"),
+            ("Katpadi", "09:00", "09:05"),
+            ("Mysuru", "13:00", "13:10")
+        ],
+        "days": {"Tuesday", "Thursday", "Saturday"}
+    },
+
+    "12603": {
+        "name": "Pandian Express",
+        "stops": [
+            ("Madurai", "05:00", "05:10"),
+            ("Chennai", "12:00", "12:10"),
+            ("Katpadi", "14:00", "14:05")
+        ],
+        "days": {"Monday", "Tuesday", "Friday"}
+    },
+
+    "12604": {
+        "name": "Rockfort Express",
+        "stops": [
+            ("Chennai", "08:00", "08:10"),
+            ("Villupuram", "10:00", "10:05"),
+            ("Trichy", "13:00", "13:10")
+        ],
+        "days": {"Wednesday", "Friday", "Sunday"}
+    },
+
+    "12605": {
+        "name": "Vaigai Express",
+        "stops": [
+            ("Madurai", "06:00", "06:10"),
+            ("Trichy", "09:00", "09:05"),
+            ("Chennai", "12:00", "12:10")
+        ],
+        "days": {"Monday", "Thursday", "Saturday"}
+    }
+}
+
+# Build station index
+station_index = {}
+
+for train_no, details in timetable.items():
+    for station, arrival, departure in details["stops"]:
+        station_index.setdefault(station, []).append(train_no)
+
+# Search trains
+def find_trains(station, day):
+    result = []
+
+    for train_no, details in timetable.items():
+        if day not in details["days"]:
+            continue
+
+        for stop in details["stops"]:
+            if stop[0] == station:
+                result.append(
+                    (train_no, details["name"], stop[2])
+                )
+                break
+
+    return sorted(result, key=lambda x: x[2])
+
+print("Trains stopping at Chennai on Monday:")
+
+for train in find_trains("Chennai", "Monday"):
+    print(train)
+
+# Search using station index
+def indexed_search(station, day):
+    result = []
+
+    for train_no in station_index.get(station, []):
+        details = timetable[train_no]
+
+        if day in details["days"]:
+            for stop in details["stops"]:
+                if stop[0] == station:
+                    result.append(
+                        (train_no, details["name"], stop[2])
+                    )
+                    break
+
+    return sorted(result, key=lambda x: x[2])
+
+print("\nUsing station index:")
+print(indexed_search("Chennai", "Monday"))
+
+# Print complete timetable
+print("\nComplete Railway Timetable:")
+
+for train_no, details in timetable.items():
+    print("\nTrain:", train_no)
+    print("Name:", details["name"])
+    print("Running days:", sorted(details["days"]))
+
+    for station, arrival, departure in details["stops"]:
+        print(station, arrival, departure)
+
+# Third station departure time
+print("\nThird station departure:",
+      timetable["12601"]["stops"][2][2])
+
+# Unknown station
+print("\nUnknown station:",
+      indexed_search("Coimbatore", "Monday"))
+
+# Performance testing
+for n in [100, 1000, 10000]:
+    generated = {}
+
+    for i in range(n):
+        generated[str(i)] = {
+            "name": "Train" + str(i),
+            "stops": [
+                ("Chennai", "06:00", "06:10"),
+                ("Katpadi", "08:00", "08:10")
+            ],
+            "days": {"Monday", "Friday"}
+        }
+
+    index = {}
+
+    for train_no, details in generated.items():
+        for station, arrival, departure in details["stops"]:
+            index.setdefault(station, []).append(train_no)
+
+    start = time.perf_counter()
+
+    for train_no, details in generated.items():
+        for stop in details["stops"]:
+            if stop[0] == "Chennai":
+                break
+
+    normal_time = time.perf_counter() - start
+
+    start = time.perf_counter()
+
+    for train_no in index.get("Chennai", []):
+        generated[train_no]
+
+    indexed_time = time.perf_counter() - start
+
+    print("\nNumber of trains:", n)
+    print("Without index:", normal_time)
+    print("With index:", indexed_time)
+
+print("\nIndex memory:",
+      sys.getsizeof(station_index))
