@@ -1,0 +1,84 @@
+
+import time
+import random
+
+ai_elective = {
+    "192311001", "192311004",
+    "192311007", "192311009"
+}
+
+iot_elective = {
+    "192311002", "192311004",
+    "192311009", "192311010"
+}
+
+all_students = {
+    f"1923110{i:02d}"
+    for i in range(1, 11)
+}
+
+# TODO 1: Set operators
+both = ai_elective & iot_elective
+
+exactly_one = ai_elective ^ iot_elective
+
+neither = all_students - (ai_elective | iot_elective)
+
+print("clash :", sorted(both))
+print("exactly one:", sorted(exactly_one))
+print("neither :", sorted(neither))
+
+# Set methods
+both_method = ai_elective.intersection(iot_elective)
+one_method = ai_elective.symmetric_difference(iot_elective)
+neither_method = all_students.difference(
+    ai_elective.union(iot_elective)
+)
+
+print("\nUsing set methods:")
+print(both_method == both)
+print(one_method == exactly_one)
+print(neither_method == neither)
+
+# Duplicate removal
+students = [
+    "192311001", "192311001",
+    "192311004", "192311009"
+]
+
+unique_students = set(students)
+print("\nUnique registrations:", sorted(unique_students))
+
+# Membership performance
+for n in [10000, 100000, 1000000]:
+    data = list(range(n))
+    data_set = set(data)
+    target = n - 1
+
+    start = time.perf_counter()
+    target in data
+    list_time = time.perf_counter() - start
+
+    start = time.perf_counter()
+    target in data_set
+    set_time = time.perf_counter() - start
+
+    print("\nElements:", n)
+    print("List search time:", list_time)
+    print("Set search time:", set_time)
+
+# Empty and identical elective tests
+empty = set()
+
+print("\nEmpty intersection:", ai_elective & empty)
+print("Identical intersection:", ai_elective & ai_elective)
+print("Identical difference:", ai_elective - ai_elective)
+
+# Nested loop vs set intersection
+start = time.perf_counter()
+common = [
+    x for x in ai_elective
+    for y in iot_elective if x == y
+]
+print("\nNested loop result:", common)
+print("Set intersection:", ai_elective & iot_elective)
